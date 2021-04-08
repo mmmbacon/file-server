@@ -38,12 +38,14 @@ const request = (connection, command, args) => {
 
 //Callback for setupInput
 const handleUserInput = function(connection) {
-
-  console.log("Connected to Fileserver - type 'commands' to list all commands");
+  console.log("");
+  console.log("");
+  console.log(`🚀🚀🚀 Welcome to ${chalk.red.bold("ROCKETFILE")} 🚀🚀🚀`);
+  console.log("type 'commands' to list all available commands");
+  console.log("");
 
   interface.on('line', (input) => {
 
-    let notRecognized = false;
     let directory = 'downloads'; //Default directory
 
     const split = input.split(" ");
@@ -57,6 +59,9 @@ const handleUserInput = function(connection) {
         interface.output.write(chalk.red(`Command requires a file argument\n`));
       } else {
 
+        const files = './' + directory;
+        let doesExist = false;
+
         //Add new directory
         if (split[2]) {
 
@@ -66,9 +71,6 @@ const handleUserInput = function(connection) {
             fs.mkdirSync(split[2]);
           }
         }
-        
-        const files = './' + directory;
-        let doesExist = false;
         
         for (let file of files) { //Search to see if the file already exists
           if (file.includes(split[1])) {

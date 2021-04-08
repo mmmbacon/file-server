@@ -39,6 +39,7 @@ const connection = function() {
       }
 
       if (data.type === 'list') {
+        interface.output.write(`\n`);
         for (let file of data.data) {
           interface.output.write(file + `\n`);
         }
@@ -57,6 +58,11 @@ const connection = function() {
 
       interface.prompt();
     }
+  });
+
+  connection.on('close', () => {
+    interface.output.write(chalk.red("Server has terminated the connection\n"));
+    interface.close();
   });
 
   return connection;

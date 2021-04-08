@@ -1,12 +1,13 @@
 {
   "name": "file-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple file server designed for the terminal",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-client": "node client.js",
+    "start-server": "node server.js"
   },
-  "author": "",
+  "author":"Brandon Macdonald",
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.0"

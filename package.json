@@ -1,5 +1,5 @@
 {
-  "name": "file-server",
+  "name": "@mmmbacon/file-server",
   "version": "1.0.0",
   "description": "A simple file server designed for the terminal",
   "main": "index.js",

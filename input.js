@@ -2,18 +2,18 @@ const { fstat } = require('fs');
 const readline = require('readline');
 const chalk = require('chalk');
 const stdin = process.stdin;
-const stdout = process.stdout;
 const fs = require('fs');
 let connection;
 
 const interface = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdin
 });
 
 const COMMANDS = {
   LIST_FILES: new RegExp("ls"),
-  GET_FILE: new RegExp("get")
+  GET_FILE: new RegExp("getfile"),
+  LIST_COMMANDS: new RegExp("commands")
 };
 
 /**
@@ -39,24 +39,35 @@ const request = (connection, command, args) => {
 //Callback for setupInput
 const handleUserInput = function(connection) {
 
-  console.log("Connected to Fileserver");
+  console.log("Connected to Fileserver - type 'commands' to list all commands");
 
   interface.on('line', (input) => {
 
-    const split = input.split(" ");
     let notRecognized = false;
+    let directory = 'downloads'; //Default directory
+
+    const split = input.split(" ");
 
     //First check for the command
     if (split[0].match(COMMANDS.LIST_FILES)) {
       request(connection, 'list');
-    }
-
-    if (split[0].match(COMMANDS.GET_FILE)) {
+    } else if (split[0].match(COMMANDS.GET_FILE)) {
+      
       if (split.length < 2) {
-        stdout.write(chalk.red(`Command requires a file argument\n`));
-        interface.prompt();
+        interface.output.write(chalk.red(`Command requires a file argument\n`));
       } else {
-        const files = fs.readdirSync('./downloads');
+
+        //Add new directory
+        if (split[2]) {
+
+          directory = split[2];
+
+          if (!fs.existsSync(split[2])) {
+            fs.mkdirSync(split[2]);
+          }
+        }
+        
+        const files = './' + directory;
         let doesExist = false;
         
         for (let file of files) { //Search to see if the file already exists
@@ -64,26 +75,30 @@ const handleUserInput = function(connection) {
             doesExist = true;
           }
         }
+
         if (doesExist) { //If file doesnt exist, proceed
           interface.question('File already exists. Overwrite? (Y/N) ', (input)=>{
             if (input === 'Y') {
               request(connection, 'getfile', split[1]);
             } else if (input === 'N') {
-              stdout.write(chalk.red(`File was not downloaded\n`));
-              interface.prompt();
+              interface.output.write(chalk.red(`File was not downloaded\n`));
             } else {
-              stdout.write(chalk.red(`Please try again\n`));
-              interface.prompt();
+              interface.output.write(chalk.red(`Please try again\n`));
             }
           });
+        } else {
+          request(connection, 'getfile', split[1]);
         }
       }
+    } else if (split[0].match(COMMANDS.LIST_COMMANDS)) {
+      interface.output.write(`${chalk.bold(`commands`)}\t\tLists all commands\n`);
+      interface.output.write(`${chalk.bold(`ls`)}\t\t\tLists files in directory\n`);
+      interface.output.write(`${chalk.bold(`getfile [filename]`)}\tFetches file with given filename\n`);
+    } else {
+      interface.output.write(chalk.red(`Error: Command not recognized\n`));
     }
 
-    if (notRecognized) {
-      stdout.write(`Command not recognized\n`);
-    }
-
+    interface.prompt();
   });
 };
 

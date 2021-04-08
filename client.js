@@ -2,7 +2,6 @@ const { setupInput, interface } = require('./input');
 const { IP, PORT } = require('./constants');
 const net = require('net');
 const chalk = require('chalk');
-const { stdout } = require('process');
 const fs = require('fs');
 
 const connection = function() {
@@ -19,38 +18,45 @@ const connection = function() {
 
   connection.on('data', message => {
 
-    const data = JSON.parse(message);
+    let chunk = message.split('|');
+    chunk = chunk.filter(function(el) {
+      return el !== '';
+    });
 
-    if (data.type === 'success') {
-      stdout.write(chalk.green(`Success:` + data.message));
-      interface.prompt();
-    }
+    for (const pipe of chunk) {
+      //Either string or buffer
 
-    if (data.type === 'list') {
-      for (let file of data.data) {
-        stdout.write(file + `\n`);
-      }
-      interface.prompt();
-    }
+      const data = JSON.parse(pipe);
+      
 
-    //Initialize our stream for writing
-    if (data.type === 'fileinit') {
-      stream = fs.createWriteStream("./downloads/" + data.data);
-    }
-
-    if (data.type === 'chunk') {
-
-      if (stream) {
-        stream.write(Buffer.from(data.chunk));
+      if (data.type === 'success') {
+        interface.output.write(chalk.green(`Success:` + data.message + `\n`));
+  
       }
 
-    }
+      if (data.type === 'failure') {
+        interface.output.write(chalk.red(`Error:` + data.message + `\n`));
+      }
 
-    if (data.type === 'failure') {
-      stdout.write(chalk.red(`Error:` + data.message));
+      if (data.type === 'list') {
+        for (let file of data.data) {
+          interface.output.write(file + `\n`);
+        }
+      }
+
+      //Initialize our stream for writing
+      if (data.type === 'fileinit') {
+        stream = fs.createWriteStream("./downloads/" + data.data);
+      }
+
+      if (data.type === 'chunk') {
+        if (stream) {
+          stream.write(Buffer.from(data.chunk));
+        }
+      }
+
       interface.prompt();
     }
-
   });
 
   return connection;

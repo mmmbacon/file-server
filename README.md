@@ -36,3 +36,20 @@ List files available for download in directory
 ```getfile [filename] [directory]``` 
 
 Download file given the target download directory, and the filename
+
+### Screenshots
+
+booting up and connecting with client:
+
+![image](https://user-images.githubusercontent.com/8649801/114635198-7a35ea00-9c81-11eb-8b24-c116c32ee699.png)
+
+ls command:
+
+![image](https://user-images.githubusercontent.com/8649801/114635399-e1ec3500-9c81-11eb-9c48-f4d1eabc98ff.png)
+
+getfile command:
+
+![image](https://user-images.githubusercontent.com/8649801/114635449-fc261300-9c81-11eb-936b-c677728221a7.png)
+
+
+
